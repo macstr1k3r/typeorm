@@ -180,7 +180,13 @@ export class MongoEntityManager extends EntityManager {
         query["_id"] = {
             $in: ids.map((id) => {
                 if (typeof id === "string") {
-                    return new objectIdInstance(id)
+                    // Making sure we can actually construct an object-id of the passed parameter.
+                    // The else clause allows us to have custom strings in the _id field, which is allowed by MongoDB
+                    if (id.length === 24 && objectIdInstance.isValid(id)) {
+                        return new objectIdInstance(id)
+                    } else {
+                        return id
+                    }
                 }
 
                 if (typeof id === "object") {
